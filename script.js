@@ -114,6 +114,42 @@ $(function () {
   });
 
   $('button.saveBtn').on('click', function() {
-    localStorage.setItem($(this).parent().attr('id'), $(this).siblings('textarea').val());
+
+    // Save to local storage and display a feedback message
+    // feedback message should be of the form:
+    //    saved an event at 10AM ✅
+    var text = $(this).siblings('textarea').val().trim();
+    var parentDivId = $(this).parent().attr('id');
+
+    // Use a simple regex to parse out the hour number from the div's id
+    var hourNumber = parseInt(parentDivId.match(/\d/g).join(''), 10);
+    var hourDelta = hourNumber - Number(todayDate.format('H'));
+    if (hourDelta < 0) {
+        // this particular hour block is in the past
+        // We must warn the user they can't add events to their schedule in
+        // the past (at least without a time machine)
+
+        displayFeedback("Error - You can't add an event to your schedule in the past! ❌", 5);
+
+        return; // Return since we cannot progress with recording an event in the past
+
+    } else if (hourDelta === 0) {
+        displayFeedback("You better hurry! You are attempting to add an event happening within the hour 🕑", 5);
+    } 
+    // Get a string representing the hour in 12-hour clock format
+    var hourTime = dayjs().hour(hourNumber).format('hA');
+
+    switch (text) {
+      case '':
+        if (localStorage.getItem(parentDivId)) {
+          displayFeedback("Removed an event at " + hourTime + " from your schedule ✅", 5);
+        }
+        break;
+      default:
+        displayFeedback("Saved an event at " + hourTime + " to your schedule ✅", 5);
+    }
+
+    // Cache the user's input in local storage. The parent div's id is the key and the text is the value
+    localStorage.setItem(parentDivId, text);
   });
 });

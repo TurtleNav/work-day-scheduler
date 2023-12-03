@@ -8,7 +8,6 @@ var todayDate;
 function updateTime() {
   todayDate = dayjs();
 }
-
 /*
   Using only an integer representing the 24-hour clock hour number, this
   function dynamically build and subsequently render a time block HTML
@@ -109,4 +108,12 @@ $(function () {
   updateTime();
   renderDate();
   renderTimeBlocks(9, 17); // 0 to 23 for full day
+
+  $('div[id*=hour]').each(function() {
+    $(this).children('textarea').text(localStorage.getItem($(this).attr('id')));
+  });
+
+  $('button.saveBtn').on('click', function() {
+    localStorage.setItem($(this).parent().attr('id'), $(this).siblings('textarea').val());
+  });
 });

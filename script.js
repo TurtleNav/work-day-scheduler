@@ -9,53 +9,81 @@ function updateTime() {
   todayDate = dayjs();
 }
 
-function renderTimeBlock(hour) {
-  // Create parent div
-  /*
-  var pDiv = $("<div>")
-  pDiv.addClass('row time-block');
-  pDiv.attr("id", `hour-${hour}`)
-  */
+/*
+  Using only an integer representing the 24-hour clock hour number, this
+  function dynamically build and subsequently render a time block HTML
+  element.
+*/
+function renderTimeBlock(hour24) {
+  var currentHourNumber = Number(todayDate.format('H'));
 
-  var pDiv = $(`<div id="hour-${hour}" class="row time-block">`);
-
-  if (hour < todayDate.format('H')) {
-    pDiv.addClass("past");
-  } else if (hour === todayDate.format('H')) {
-    pDiv.addClass("present");
+  var ppf; // A string of: "past", "present", or "future"
+  var end; // A string of "AM" or "PM" denoting if we are before or after midday
+  if (hour24 < currentHourNumber) {
+    ppf = "past";
+  } else if (hour24 == currentHourNumber) {
+    ppf = "present";
   } else {
-    pDiv.addClass("future");
+    ppf = "future";
   }
+  end = (hour24 < 12 ? 'AM': 'PM');
+  $('div.px-5').append($(`
+  <div id="hour-${hour24}" class="row time-block ${ppf}">
+    <div class="col-2 col-md-1 hour text-center py-3">${hour24 % 12 || 12}${end}</div>
+    <textarea class="col-8 col-md-10 description" rows="3"></textarea>
+    <button class="btn saveBtn col-2 col-md-1" aria-label="save">
+      <i class="fas fa-save" aria-hidden="true"></i>
+    </button>
+  </div>
+`));
+}
 
-  if (hour > 12) {
-    end = "PM";
-    hour -= 12;
-  } else if (hour === 12) {
-    end = "PM";
+function renderTimeBlocks(start, end) {
+  for (let i=start; i<end+1; i++) {
+    renderTimeBlock(i);
+  }
+}
+
+function renderDate() {
+  var daySuffix;
+  switch (Number(todayDate.format("D"))) {
+    case 1:
+      daySuffix = "st";
+      break;
+    case 2:
+      daySuffix = "nd";
+      break;
+    case 3:
+      daySuffix = "rd";
+      break;
+    default:
+      daySuffix = "th";
+  }
+  $('p#currentDay').text(todayDate.format(`dddd, MMMM D[${daySuffix}]`));
+}
+
+// A method for the temporary display of a message in the header. Used for providing
+// feedback to the user
+var feedbackQueue = [];
+var messageDisplayed = false;
+function displayFeedback(message, duration) {
+  // If a message is currently being displayed, push the feedback to the queue
+  if (messageDisplayed) {
+    feedbackQueue.push({message: message, duration: duration});
   } else {
-    end = "AM";
+    messageDisplayed = true;
+    $('div#feedback').text(message);
+    setTimeout(() => {
+
+      $('div#feedback').text('');
+      messageDisplayed = false;
+
+      if (feedbackQueue.length) {
+        var nextInQueue = feedbackQueue.shift();
+        displayFeedback(nextInQueue.message, nextInQueue.duration);
+      }
+    }, 1000*duration);
   }
-
-  var textDiv = $('<div class="col-2 col-md-1 hour text-center py-3">');
-  //var $textDiv = $('<class="col-2 col-md-1 hour text-center py-3">');
-  //$textDiv.text(`${hour}${end}`);
-  textDiv.text(`${hour}${end}`);
-
-  //$pDiv.append($textDiv);
-  pDiv.append(textDiv);
-
-  //$pDiv.append($('<textarea class="col-8 col-md-10 description" rows="3">'));
-  pDiv.append($('<textarea class="col-8 col-md-10 description" rows="3">'));
-
-  var buttonEl = $('<button class="btn saveBtn col-2 col-md-1" aria-label="save">');
-  buttonEl.append($('<i class="fas fa-save" aria-hidden="true">'));
-
-  //$pDiv.append(buttonEl);
-  pDiv.append(buttonEl);
-  
-  //$('div.px-5').append($pDiv);
-  $('div.px-5').append(pDiv);
-
 }
 
 $(function () {
@@ -78,32 +106,7 @@ $(function () {
   //
   // TODO: Add code to display the current date in the header of the page.
 
-
-  function renderDate() {
-    updateTime();
-    var dayNumber = Number(todayDate.format("D"));
-    var daySuffix;
-    switch (dayNumber) {
-      case 1:
-        daySuffix = "st";
-        break;
-      case 2:
-        daySuffix = "nd";
-        break;
-      case 3:
-        daySuffix = "rd";
-        break;
-      default:
-        daySuffix = "th";
-    }
-    $('p#currentDay').text(todayDate.format(`dddd, MMMM D[${daySuffix}]`));
-  }
+  updateTime();
   renderDate();
-  for (let i=9; i<18; i++) {
-    renderTimeBlock(i);
-  }
-
-
+  renderTimeBlocks(9, 17); // 0 to 23 for full day
 });
-
-console.log("yo");

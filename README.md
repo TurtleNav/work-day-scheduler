@@ -32,8 +32,9 @@ such as:
 
 TODO - PLACE SOME DEMO VIDS/IMAGES HERE
 
-![A demonstration of the work day scheduler in use](./demo.png)
-
+| ![A demonstration of the work day scheduler in use](./demo.png) |
+|:--:| 
+| *A demonstration of the work day schedule in use. Note the coloring for past events (grey), present events (red), and future events (green)* |
 
 ## #1
 
@@ -104,7 +105,11 @@ function renderTimeBlocks(start, end) {
   }
 }
 ```
-
+## #4/#5
+[Goals 4 & 5](#c4) set out to provide the user with event saving functionality. Using local
+storage, this is relatively simple. Upon clicking the save button, the event typed in by the
+user is saved in localstorage. Upon loading or page refresh, the saved events in local storage
+are pulled out and placed back in their appropriate time block.
 
 
 

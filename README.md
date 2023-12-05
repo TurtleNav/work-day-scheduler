@@ -32,6 +32,8 @@ such as:
 
 TODO - PLACE SOME DEMO VIDS/IMAGES HERE
 
+![A demonstration of the work day scheduler in use](./demo.png)
+
 
 ## #1
 
